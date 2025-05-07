@@ -1,15 +1,13 @@
 import sys
 import os
+import tkinter as tk
+from tkinter import ttk
 
 # Añadir la carpeta 'automatas' al path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'automatas'))
 
 from afd import AFD
 from lexer import analizar
-import tkinter as tk
-from tkinter import ttk
-from lexer import analizar
-from afd import AFD
 
 class AnalizadorGUI:
     def __init__(self, root):
@@ -40,16 +38,32 @@ class AnalizadorGUI:
 
     def analizar(self):
         codigo = self.entrada_codigo.get("1.0", tk.END)
+
+        keywords = ["if", "else", "while", "for", "def", "val", "var", "class", "object", "match", "case", "import", "new", "return", "this", "super", "trait", "extends", "with", "yield", "try", "catch", "finally", "throw", "override", "abstract", "sealed", "private", "protected", "final", "implicit", "lazy", "do"]
+        types = ["Int", "String", "Boolean", "Double", "Float", "Unit", "Any", "Nothing", "Char", "Long", "Short", "Byte"]
+
         try:
             tokens = analizar(codigo)
             self.salida.config(state='normal')
             self.salida.delete("1.0", tk.END)
 
             for tipo, valor in tokens:
-                val_afd = self.afd.validar(valor) if tipo == 'IDENTIFIER' else "-"
-                self.salida.insert(tk.END, f"{tipo:15} | {valor:20} | AFD: {val_afd}\n")
+                descripcion = tipo
+
+                if tipo == "IDENTIFIER":
+                    if valor in keywords:
+                        descripcion = "KEYWORD"
+                    elif valor in types:
+                        descripcion = "TYPE"
+                    elif self.afd.validar(valor):
+                        descripcion = "IDENTIFIER válido"
+                    else:
+                        descripcion = "IDENTIFIER inválido"
+
+                self.salida.insert(tk.END, f"{descripcion:20} | {valor}\n")
 
             self.salida.config(state='disabled')
+
         except Exception as e:
             self.salida.config(state='normal')
             self.salida.delete("1.0", tk.END)
