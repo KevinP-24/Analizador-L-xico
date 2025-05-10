@@ -1,18 +1,21 @@
 from errores import ErrorLexico
+from utils.tokens import TokenType
+
 from AFDs.afd_identificador import AFDIdentificador
+from AFDs.numero_real import AFDNumeroReal
 from AFDs.numero_natural import AFDNumeroNatural
 from AFDs.operador import AFDOperador
-from utils.tokens import TokenType
 
 class Lexer:
     def __init__(self):
-        # Lista de AFDs a ejecutar en orden
+        # Orden importa: primero número real, luego natural, para evitar conflictos como "3.14"
         self.afds = [
-            AFDIdentificador(), #Para cadaenas
-            AFDNumeroNatural(), #Para numeros naturales
-            AFDOperador(),      #Para operadores logicos
+            AFDIdentificador(),   # Identificadores (nombres de variables, etc.)
+            AFDNumeroReal(),      # Números reales (ej: 3.14)
+            AFDNumeroNatural(),   # Números naturales (ej: 42)
+            AFDOperador(),        # Todos los operadores clasificados por tipo
         ]
-    
+
     def analizar(self, texto):
         tokens = []
         linea = 1
@@ -21,6 +24,7 @@ class Lexer:
         longitud = len(texto)
 
         while i < longitud:
+            # Ignorar espacios y saltos de línea
             if texto[i].isspace():
                 if texto[i] == '\n':
                     linea += 1
@@ -44,6 +48,8 @@ class Lexer:
                     columna += longitud_token
                     reconocio = True
                     break
+
             if not reconocio:
                 raise ErrorLexico(f"Token no reconocido: {texto[i]}", linea, columna)
+
         return tokens

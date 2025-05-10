@@ -4,7 +4,6 @@ class TokenType(Enum):
     IDENTIFICADOR = "Identificador"
     NUMERO_NATURAL = "Número Natural"
     NUMERO_REAL = "Número Real"
-    OPERADOR = "Operador"
     OPERADOR_ARITMETICO = "Operador aritmético"
     OPERADOR_COMPARACION = "Operador de comparación"
     OPERADOR_LOGICO = "Operador lógico"
