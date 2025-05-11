@@ -8,7 +8,7 @@ class TokenType(Enum):
     OPERADOR_COMPARACION = "Operador de comparación"
     OPERADOR_LOGICO = "Operador lógico"
     OPERADOR_ASIGNACION = "Operador de asignación"
-    OPERADOR_INCREMENTO = "Operador de incremento/decremento"
+    OPERADOR_INCREMENTO = "Operador de incremento"
     CADENA = "Cadena"
     COMENTARIO = "Comentario"
     PARENTESIS = "Paréntesis"

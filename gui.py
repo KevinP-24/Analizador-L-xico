@@ -2,12 +2,8 @@ import sys
 import os
 import tkinter as tk
 from tkinter import ttk
-
-# Añadir la carpeta 'automatas' al path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'automatas'))
-
-from afd import AFD
-from lexer import analizar
+from lexer import Lexer
+from errores import ErrorLexico
 
 class AnalizadorGUI:
     def __init__(self, root):
@@ -33,41 +29,30 @@ class AnalizadorGUI:
         self.salida = tk.Text(root, height=15, state='disabled')
         self.salida.pack(fill=tk.BOTH, expand=True, padx=10)
 
-        # AFD para identificadores
-        self.afd = AFD()
+        # Instancia del analizador léxico
+        self.lexer = Lexer()
 
     def analizar(self):
         codigo = self.entrada_codigo.get("1.0", tk.END)
 
-        keywords = ["if", "else", "while", "for", "def", "val", "var", "class", "object", "match", "case", "import", "new", "return", "this", "super", "trait", "extends", "with", "yield", "try", "catch", "finally", "throw", "override", "abstract", "sealed", "private", "protected", "final", "implicit", "lazy", "do"]
-        types = ["Int", "String", "Boolean", "Double", "Float", "Unit", "Any", "Nothing", "Char", "Long", "Short", "Byte"]
-
         try:
-            tokens = analizar(codigo)
+            tokens = self.lexer.analizar(codigo)
             self.salida.config(state='normal')
             self.salida.delete("1.0", tk.END)
 
-            for tipo, valor in tokens:
-                descripcion = tipo
-
-                if tipo == "IDENTIFIER":
-                    if valor in keywords:
-                        descripcion = "KEYWORD"
-                    elif valor in types:
-                        descripcion = "TYPE"
-                    elif self.afd.validar(valor):
-                        descripcion = "IDENTIFIER válido"
-                    else:
-                        descripcion = "IDENTIFIER inválido"
-
-                self.salida.insert(tk.END, f"{descripcion:20} | {valor}\n")
+            for token in tokens:
+                lexema = token['lexema']
+                categoria = token['categoria']
+                linea = token['linea']
+                columna = token['columna']
+                self.salida.insert(tk.END, f"{categoria:25} | {lexema:<15} (línea {linea}, columna {columna})\n")
 
             self.salida.config(state='disabled')
 
-        except Exception as e:
+        except ErrorLexico as e:
             self.salida.config(state='normal')
             self.salida.delete("1.0", tk.END)
-            self.salida.insert(tk.END, f"Error: {e}")
+            self.salida.insert(tk.END, str(e))
             self.salida.config(state='disabled')
 
 # Ejecutar
